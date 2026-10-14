@@ -452,21 +452,22 @@ ul { list-style: none; }
               transform 0.78s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Staggered Project Cards — One-by-One Elegant Entrance */
-.project-showcase-row.reveal-card {
+/* Staggered Project Cards — One-by-One Independent Scroll-Triggered Entrance */
+.project-showcase-row.reveal-card,
+.project-showcase-row.project-scroll-card {
   opacity: 0;
-  transform: translateY(44px) scale(0.98);
-  filter: blur(5px);
+  transform: translateY(65px) scale(0.97);
+  filter: blur(8px);
   will-change: transform, opacity, filter;
-  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.85s cubic-bezier(0.16, 1, 0.3, 1),
-              filter 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+  transition: opacity 0.95s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.95s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.95s cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 0.28s ease,
               border-color 0.25s ease;
   transition-delay: var(--reveal-delay, 0ms);
 }
 
-/* Active Revealed States — Supports both is-revealed & visible classes */
+/* Active Revealed States — Supports both is-revealed, is-active-project & visible classes */
 .reveal-item.is-revealed,
 .reveal-item.visible,
 .reveal-header.is-revealed,
@@ -480,7 +481,10 @@ ul { list-style: none; }
 }
 
 .project-showcase-row.reveal-card.is-revealed,
-.project-showcase-row.reveal-card.visible {
+.project-showcase-row.reveal-card.visible,
+.project-showcase-row.project-scroll-card.is-active-project,
+.project-showcase-row.project-scroll-card.is-revealed,
+.project-showcase-row.project-scroll-card.visible {
   opacity: 1;
   transform: translateY(0) scale(1);
   filter: blur(0);
@@ -492,7 +496,8 @@ ul { list-style: none; }
   .reveal-header,
   .reveal-card,
   [data-reveal],
-  .project-showcase-row.reveal-card {
+  .project-showcase-row.reveal-card,
+  .project-showcase-row.project-scroll-card {
     opacity: 1 !important;
     transform: none !important;
     filter: none !important;
@@ -1784,12 +1789,20 @@ ul { list-style: none; }
   color: #94a3b8;
 }
 
-/* ─── PROJECTS (ONE-BY-ONE DOWN SIDE WITH LEFT VIDEO TYPE & RIGHT MATTER) ─── */
+/* ─── PROJECTS (ONE-BY-ONE DOWN SIDE WITH INDIVIDUAL SCROLL FOCUS) ─── */
 .projects-grid {
   display: flex;
   flex-direction: column;
-  gap: 36px;
+  gap: 160px; /* Generous breathing room so each project is experienced individually */
   width: 100%;
+  padding-bottom: 80px;
+}
+
+@media (max-width: 900px) {
+  .projects-grid {
+    gap: 100px;
+    padding-bottom: 40px;
+  }
 }
 
 .project-showcase-row {
@@ -1804,15 +1817,16 @@ ul { list-style: none; }
   align-items: stretch;
 }
 
-.project-showcase-row:not(.reveal-card) {
+.project-showcase-row:not(.project-scroll-card):not(.reveal-card) {
   transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1),
               border-color 0.25s ease;
 }
 
-.project-showcase-row:not(.reveal-card):hover,
-.project-showcase-row.reveal-card.is-revealed:hover,
-.project-showcase-row.reveal-card.visible:hover {
+.project-showcase-row:hover,
+.project-showcase-row.is-active-project:hover,
+.project-showcase-row.is-revealed:hover,
+.project-showcase-row.visible:hover {
   transform: translateY(-4px);
   border-color: #cbd5e1;
   box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04);
@@ -1820,6 +1834,70 @@ ul { list-style: none; }
               box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1),
               border-color 0.25s ease;
   transition-delay: 0s !important;
+}
+
+/* ─── Architectural Milestone Between Spaced Projects ─── */
+.project-scroll-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  width: 100%;
+  margin: -40px 0;
+  user-select: none;
+  pointer-events: none;
+}
+
+.project-divider-line {
+  flex: 1;
+  max-width: 240px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-hairline), transparent);
+}
+
+.project-divider-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+  background: var(--color-paper);
+  border: 1px solid var(--color-hairline);
+  padding: 6px 16px;
+  border-radius: 999px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+.project-divider-badge .divider-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #111827;
+  opacity: 0.8;
+}
+
+[data-theme="dark"] .project-scroll-divider {
+  opacity: 0.85;
+}
+
+[data-theme="dark"] .project-divider-line {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.14), transparent);
+}
+
+[data-theme="dark"] .project-divider-badge {
+  background: #0d1117;
+  border-color: #21262d;
+  color: #8b949e;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .project-divider-badge .divider-dot {
+  background: #ffffff;
+  opacity: 0.9;
 }
 
 /* ─── Left Side: Live Demo Video Type Frame ─── */

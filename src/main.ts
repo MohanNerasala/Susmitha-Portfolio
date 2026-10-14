@@ -462,14 +462,14 @@ function initSkillsTabs(): void {
   }
 }
 
-// ─── PROJECTS RENDERING (ONE-BY-ONE DOWN SIDE WITH LEFT LIVE DEMO VIDEO & RIGHT MATTER) ───
+// ─── PROJECTS RENDERING (ONE-BY-ONE DOWN SIDE WITH INDIVIDUAL SCROLL FOCUS) ───
 
 function renderProjects(): void {
   const grid = document.getElementById('projectsGrid');
   if (!grid) return;
 
   const renderCard = (project: Project, index: number) => `
-    <article class="project-showcase-row reveal-card" data-reveal style="--reveal-delay: ${index * 140}ms;">
+    <article class="project-showcase-row project-scroll-card" data-project-index="${index}">
       <!-- Left Side: Live Demo Video Type Frame -->
       <div class="project-video-col">
         <a href="${project.liveUrl}" target="_blank" rel="noopener noreferrer" class="video-player-frame" title="Open ${project.title} Live Demo">
@@ -555,7 +555,24 @@ function renderProjects(): void {
     </article>
   `;
 
-  grid.innerHTML = projectsData.map((p, i) => renderCard(p, i)).join('');
+  let html = '';
+  projectsData.forEach((project, index) => {
+    if (index > 0) {
+      html += `
+        <div class="project-scroll-divider" aria-hidden="true">
+          <div class="project-divider-line"></div>
+          <div class="project-divider-badge">
+            <span class="divider-dot"></span>
+            <span class="divider-text">FEATURED PROJECT 0${index + 1}</span>
+          </div>
+          <div class="project-divider-line"></div>
+        </div>
+      `;
+    }
+    html += renderCard(project, index);
+  });
+
+  grid.innerHTML = html;
 }
 
 // ─── WORKFLOW RENDERING (SINGLE-ROW HORIZONTAL CI/CD PIPELINE) ───
@@ -1105,9 +1122,43 @@ function initRevealAnimations(): void {
   });
 }
 
+// ─── INDEPENDENT PROJECT-BY-PROJECT SCROLL REVEAL (ONE AT A TIME) ───
 
+function initProjectsScrollReveal(): void {
+  const cards = document.querySelectorAll<HTMLElement>('.project-scroll-card');
+  if (!cards.length) return;
 
+  if (!('IntersectionObserver' in window)) {
+    cards.forEach((card) => card.classList.add('is-active-project'));
+    return;
+  }
 
+  const observer = new IntersectionObserver(
+    (entries, obs) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const card = entry.target as HTMLElement;
+          card.classList.add('is-active-project');
+          obs.unobserve(card);
+        }
+      });
+    },
+    {
+      threshold: 0.15,
+      rootMargin: '0px 0px -100px 0px',
+    }
+  );
+
+  cards.forEach((card, index) => {
+    // Only auto-reveal project 0 if it is already prominently in view on initial load
+    const rect = card.getBoundingClientRect();
+    if (index === 0 && rect.top < window.innerHeight * 0.75 && rect.bottom > 80) {
+      card.classList.add('is-active-project');
+    } else {
+      observer.observe(card);
+    }
+  });
+}
 
 // ─── THEME TOGGLE (LIGHT / DARK) ───
 function initTheme(): void {
@@ -1292,6 +1343,7 @@ document.addEventListener('DOMContentLoaded', () => {
   typeText();
   initSkillsTabs();
   renderProjects();
+  initProjectsScrollReveal();
   renderWorkflow();
   initNavigation();
   initTheme();
@@ -1323,5 +1375,6 @@ document.addEventListener('DOMContentLoaded', () => {
   requestAnimationFrame(() => {
     document.body.classList.add('dom-ready');
     initRevealAnimations();
+    initProjectsScrollReveal();
   });
 });
