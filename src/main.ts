@@ -575,62 +575,56 @@ function renderProjects(): void {
   grid.innerHTML = html;
 }
 
-// ─── WORKFLOW RENDERING (SINGLE-ROW HORIZONTAL CI/CD PIPELINE) ───
+// ─── WORKFLOW RENDERING (PURE SINGLE-ROW FLOWING PIPELINE: START TO END) ───
 
 function renderWorkflow(): void {
   const track = document.getElementById('workflowTrack');
-  const cycleStatus = document.getElementById('pipelineCycleStatus');
   if (!track) return;
 
   let currentStageIndex = 0;
   let autoPlayTimer: number | null = null;
 
-  // Build the Single-Row Pipeline: 6 connected stage cards + 5 animated connector bridges
+  // Build the Pure Single-Row Pipeline: 6 connected nodes + 5 animated flowing bridges
   let html = '';
   workflowData.forEach((stage, i) => {
-    // Stage Card
+    const isStart = i === 0;
+    const isEnd = i === workflowData.length - 1;
+    const terminalTag = isStart 
+      ? '<span class="flow-terminal-tag flow-tag-start">START</span>' 
+      : isEnd 
+      ? '<span class="flow-terminal-tag flow-tag-end">END</span>' 
+      : '';
+
     html += `
-      <div class="pipeline-node-card ${i === 0 ? 'active' : ''}" data-stage="${i}" role="button" tabindex="0" aria-label="Stage ${stage.stepNumber}: ${stage.title}">
-        <div class="p-card-topbar">
-          <span class="p-card-step-badge">${stage.stepNumber}</span>
-          <span class="p-card-cat-badge">${stage.id.toUpperCase()}</span>
+      <div class="flow-step-node ${i === 0 ? 'active' : ''}" data-stage="${i}" role="button" tabindex="0" aria-label="Step ${stage.stepNumber}: ${stage.title}">
+        <div class="flow-node-top">
+          <span class="flow-step-num">${stage.stepNumber}</span>
+          ${terminalTag}
         </div>
 
-        <div class="p-card-icon-halo">
-          <div class="p-card-icon">
+        <div class="flow-circle-anchor">
+          <div class="flow-node-circle">
             ${stage.iconSvg}
           </div>
+          <div class="flow-pulse-wave" aria-hidden="true"></div>
         </div>
 
-        <div class="p-card-meta">
-          <h3 class="p-card-title">${stage.label}</h3>
-          <p class="p-card-sub">${stage.subtitle}</p>
-        </div>
-
-        <div class="p-card-command-chip">
-          <code>$ ${stage.cliCommand.split(' ')[0]} ${stage.cliCommand.split(' ')[1] || ''}</code>
-        </div>
-
-        <div class="p-card-deliverable-box">
-          <span class="p-deliv-dot"></span>
-          <span class="p-deliv-text">${stage.phaseRole}</span>
-        </div>
-
-        <div class="p-card-footer">
-          <span class="p-card-status-pill">${i === 0 ? 'ACTIVE' : 'READY'}</span>
+        <div class="flow-node-info">
+          <span class="flow-node-title">${stage.label}</span>
+          <span class="flow-node-role">${stage.subtitle}</span>
         </div>
       </div>
     `;
 
-    // Connector Bridge between cards
+    // Flowing connector between nodes
     if (i < workflowData.length - 1) {
       html += `
-        <div class="pipeline-bridge ${i === 0 ? 'flowing' : ''}" data-bridge="${i}" aria-hidden="true">
-          <div class="p-bridge-line">
-            <div class="p-bridge-laser"></div>
+        <div class="flow-segment-bridge ${i === 0 ? 'flowing' : ''}" data-bridge="${i}" aria-hidden="true">
+          <div class="flow-bridge-rail">
+            <div class="flow-bridge-beam"></div>
           </div>
-          <div class="p-bridge-arrow">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <div class="flow-bridge-arrow">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="9 18 15 12 9 6"/>
             </svg>
           </div>
@@ -643,42 +637,33 @@ function renderWorkflow(): void {
 
   const updateStage = (index: number): void => {
     currentStageIndex = index;
-    const cards = track.querySelectorAll('.pipeline-node-card');
-    const bridges = track.querySelectorAll('.pipeline-bridge');
+    const nodes = track.querySelectorAll('.flow-step-node');
+    const bridges = track.querySelectorAll('.flow-segment-bridge');
 
-    cards.forEach((card, i) => {
-      const isActive = i === index;
-      card.classList.toggle('active', isActive);
-      const pill = card.querySelector('.p-card-status-pill');
-      if (pill) {
-        pill.textContent = isActive ? 'ACTIVE' : i < index ? 'PASSED' : 'READY';
-      }
+    nodes.forEach((node, i) => {
+      node.classList.toggle('active', i === index);
+      node.classList.toggle('passed', i < index);
     });
 
     bridges.forEach((bridge, i) => {
-      bridge.classList.toggle('flowing', i === index || (index === 0 && i === 0));
+      bridge.classList.toggle('flowing', i === index || i < index);
     });
-
-    if (cycleStatus) {
-      const stage = workflowData[index];
-      cycleStatus.innerHTML = `<span class="cycle-pulse-text">ACTIVE: ${stage.stepNumber} ${stage.label.toUpperCase()}</span>`;
-    }
   };
 
   // Click & keyboard navigation
   track.addEventListener('click', (e) => {
-    const card = (e.target as HTMLElement).closest('.pipeline-node-card') as HTMLElement | null;
-    if (!card) return;
-    const idx = parseInt(card.getAttribute('data-stage') || '0', 10);
+    const node = (e.target as HTMLElement).closest('.flow-step-node') as HTMLElement | null;
+    if (!node) return;
+    const idx = parseInt(node.getAttribute('data-stage') || '0', 10);
     updateStage(idx);
   });
 
   track.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
-      const card = (e.target as HTMLElement).closest('.pipeline-node-card') as HTMLElement | null;
-      if (!card) return;
+      const node = (e.target as HTMLElement).closest('.flow-step-node') as HTMLElement | null;
+      if (!node) return;
       e.preventDefault();
-      const idx = parseInt(card.getAttribute('data-stage') || '0', 10);
+      const idx = parseInt(node.getAttribute('data-stage') || '0', 10);
       updateStage(idx);
     }
   });
@@ -689,7 +674,7 @@ function renderWorkflow(): void {
     autoPlayTimer = window.setInterval(() => {
       currentStageIndex = (currentStageIndex + 1) % workflowData.length;
       updateStage(currentStageIndex);
-    }, 2800);
+    }, 2400);
   };
 
   const stopAutoFlow = (): void => {

@@ -353,35 +353,10 @@
             <p class="workflow-main-desc">Full-stack software engineering lifecycle — uniting architectural prompt design, autonomous agent pair-programming, Git version control, and automated cloud deployments.</p>
           </div>
 
-          <!-- Single-Row Grand Pipeline Track -->
-          <div class="workflow-pipeline-suite reveal-item">
-            <!-- Pipeline Suite Control Header -->
-            <div class="pipeline-suite-topbar">
-              <div class="pipeline-status-left">
-                <span class="pipeline-pulse-dot" aria-hidden="true"></span>
-                <span class="pipeline-track-label">AUTONOMOUS FULL-STACK CI/CD PIPELINE</span>
-                <span class="pipeline-stage-badge">6 STAGES</span>
-              </div>
-              <div class="pipeline-status-right">
-                <span class="pipeline-stream-mode">STREAMING AUTOMATION</span>
-                <span class="pipeline-status-pill">● PRODUCTION VERIFIED</span>
-              </div>
-            </div>
-
-            <!-- Single Row: The 6 Connected Pipeline Stages & Connectors -->
-            <div class="pipeline-horizontal-track" id="workflowTrack">
-              <!-- 6 Stages & Connector Bridges Injected via JS -->
-            </div>
-
-            <!-- Bottom Live Execution & Flow Guarantee Bar -->
-            <div class="pipeline-suite-bottombar">
-              <div class="pipeline-flow-guarantee">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                <span>End-to-End Pipeline: Prompt Architecture ➔ AI Pair Coding ➔ Autonomous Build ➔ Git Push ➔ Edge CDN ➔ Cloud API</span>
-              </div>
-              <div class="pipeline-cycle-status" id="pipelineCycleStatus">
-                <span class="cycle-pulse-text">ACTIVE: 01 CLAUDE AI</span>
-              </div>
+          <!-- Pure Single-Row Flowing Pipeline (Start to End) -->
+          <div class="workflow-flow-container reveal-item">
+            <div class="workflow-flow-row" id="workflowTrack">
+              <!-- Injected via renderWorkflow() in main.ts -->
             </div>
           </div>
         </div>
