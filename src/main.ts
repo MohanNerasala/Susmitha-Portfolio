@@ -739,19 +739,37 @@ function initNavigation(): void {
 
   window.addEventListener('scroll', onScroll, { passive: true });
 
-  // Mobile toggle
+  // Mobile toggle with body scroll locking & escape key support
   if (toggle && links) {
+    const toggleMenu = (open?: boolean): void => {
+      const isOpen = open !== undefined ? open : !links.classList.contains('open');
+      toggle.classList.toggle('active', isOpen);
+      links.classList.toggle('open', isOpen);
+      document.body.style.overflow = isOpen ? 'hidden' : '';
+    };
+
     toggle.addEventListener('click', () => {
-      toggle.classList.toggle('active');
-      links.classList.toggle('open');
+      toggleMenu();
     });
 
     links.addEventListener('click', (e) => {
-      if ((e.target as HTMLElement).classList.contains('nav-link')) {
-        toggle.classList.remove('active');
-        links.classList.remove('open');
+      const target = e.target as HTMLElement;
+      if (target.classList.contains('nav-link') || target.closest('.nav-link') || target.tagName === 'A') {
+        toggleMenu(false);
       }
     });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && links.classList.contains('open')) {
+        toggleMenu(false);
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 768 && links.classList.contains('open')) {
+        toggleMenu(false);
+      }
+    }, { passive: true });
   }
 
   // Back to top
@@ -1114,11 +1132,14 @@ function initProjectsScrollReveal(): void {
   if (!cards.length) return;
 
   if (!('IntersectionObserver' in window)) {
-    cards.forEach((card) => card.classList.add('is-active-project'));
+    cards.forEach((card) => {
+      card.classList.add('is-active-project');
+    });
     return;
   }
 
-  const observer = new IntersectionObserver(
+  // 1. Entrance Reveal via IntersectionObserver
+  const entranceObserver = new IntersectionObserver(
     (entries, obs) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -1129,20 +1150,60 @@ function initProjectsScrollReveal(): void {
       });
     },
     {
-      threshold: 0.15,
-      rootMargin: '0px 0px -100px 0px',
+      threshold: 0.08,
+      rootMargin: '0px 0px -30px 0px',
     }
   );
 
   cards.forEach((card, index) => {
-    // Only auto-reveal project 0 if it is already prominently in view on initial load
-    const rect = card.getBoundingClientRect();
-    if (index === 0 && rect.top < window.innerHeight * 0.75 && rect.bottom > 80) {
-      card.classList.add('is-active-project');
-    } else {
-      observer.observe(card);
-    }
+    card.style.setProperty('--card-stagger', `${index * 60}ms`);
+    entranceObserver.observe(card);
   });
+
+  // 2. Dynamic Scroll Focus Spotlight (highlights active card near vertical center of viewport)
+  let ticking = false;
+  const updateScrollFocus = (): void => {
+    const viewportMiddle = window.innerHeight * 0.48;
+    let closestCard: HTMLElement | null = null;
+    let closestDistance = Infinity;
+
+    cards.forEach((card) => {
+      const rect = card.getBoundingClientRect();
+      // Card is in visible viewport
+      if (rect.bottom > 80 && rect.top < window.innerHeight - 80) {
+        const cardMiddle = rect.top + rect.height * 0.5;
+        const dist = Math.abs(cardMiddle - viewportMiddle);
+        if (dist < closestDistance) {
+          closestDistance = dist;
+          closestCard = card;
+        }
+      }
+    });
+
+    cards.forEach((card) => {
+      if (card === closestCard && closestDistance < window.innerHeight * 0.42) {
+        card.classList.add('is-focused-project');
+      } else {
+        card.classList.remove('is-focused-project');
+      }
+    });
+
+    ticking = false;
+  };
+
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (!ticking) {
+        window.requestAnimationFrame(updateScrollFocus);
+        ticking = true;
+      }
+    },
+    { passive: true }
+  );
+
+  // Initial trigger after layout settles
+  requestAnimationFrame(updateScrollFocus);
 }
 
 // ─── THEME TOGGLE (LIGHT / DARK) ───

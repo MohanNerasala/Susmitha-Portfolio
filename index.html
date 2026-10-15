@@ -67,6 +67,15 @@
           <li><a href="#skills" class="nav-link" data-section="skills">Skills</a></li>
           <li><a href="#projects" class="nav-link" data-section="projects">Projects</a></li>
           <li><a href="#workflow" class="nav-link" data-section="workflow">Workflow</a></li>
+          <li class="mobile-only-nav-item">
+            <a href="#contact" class="nav-link nav-mobile-cta" data-section="contact">
+              <span>Get in Touch</span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="7" y1="17" x2="17" y2="7"></line>
+                <polyline points="7 7 17 7 17 17"></polyline>
+              </svg>
+            </a>
+          </li>
         </ul>
         <div class="nav-right">
           <!-- Light / Dark Mode Toggle Button -->
@@ -208,15 +217,7 @@
             <h2 class="about-main-title">About Me</h2>
           </div>
 
-          <!-- Left-aligned Who I Am header like before -->
-          <div class="section-header reveal-item">
-            <div class="section-header-left">
-              <span class="section-eyebrow">ABOUT</span>
-              <h2 class="section-title">Who I Am</h2>
-            </div>
-          </div>
-
-                    <div class="about-grid">
+          <div class="about-grid">
             <!-- Left Side: Concise intro + 3 small boxes in one row -->
             <div class="about-text reveal-item">
               <p class="about-intro">
@@ -334,9 +335,10 @@
       <section class="section" id="projects">
         <div class="section-container">
           <div class="projects-section-header reveal-header">
-            <span class="projects-eyebrow">PRODUCTION SYSTEMS</span>
-            <h2 class="projects-main-title">Production-Grade Projects</h2>
-            <p class="projects-main-desc">Full-stack applications featuring robust Java Spring Boot architectures, responsive React.js interfaces, and relational SQL persistence.</p>
+            <span class="projects-eyebrow">PROJECTS</span>
+            <h2 class="projects-main-title">Featured Projects</h2>
+            <p class="projects-main-desc projects-desc-desktop">Full-stack web applications featuring robust Java Spring Boot architectures, responsive React.js interfaces, and relational SQL persistence.</p>
+            <p class="projects-main-desc projects-desc-mobile">Full-stack applications built with React.js & Java Spring Boot.</p>
           </div>
           <div class="projects-grid" id="projectsGrid">
             <!-- Projects injected via JS -->
@@ -350,7 +352,6 @@
           <div class="workflow-section-header reveal-header">
             <span class="workflow-eyebrow">ENGINEERING PIPELINE</span>
             <h2 class="workflow-main-title">AI-Powered Development Pipeline</h2>
-            <p class="workflow-main-desc">Full-stack software engineering lifecycle — uniting architectural prompt design, autonomous agent pair-programming, Git version control, and automated cloud deployments.</p>
           </div>
 
           <!-- Pure Single-Row Flowing Pipeline (Start to End) -->
